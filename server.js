@@ -4,63 +4,63 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 require("dotenv").config();
-app.use(cors());
+
+// ── CORS config ──
+const corsOptions = {
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// Connect to MongoDB
+// ── MongoDB ──
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("Connected to MongoDB Successfully"))
   .catch((err) => console.log(err));
 
-// Define Schema with timestamps
+// ── Schema ──
 const UserSchema = new mongoose.Schema({
-  name: { type: String },
-  email: { type: String },
+  name:    { type: String },
+  email:   { type: String },
   subject: { type: String },
   message: { type: String }
-}, { timestamps: true }); // adds createdAt and updatedAt automatically
+}, { timestamps: true });
 
 const User = mongoose.model("User", UserSchema);
 
-// Root route to check server status
+// ── GET / — health check ──
 app.get("/", (req, res) => {
   res.json({ status: "Backend is running properly 🚀" });
 });
 
-// POST route to save message
+// ── POST /message ──
 app.post("/message", async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
-    const isUserExist = await User.findOne({ email });
-
-    if (isUserExist) {
-      return res.json({ message: "User already exists" });
-    }
-
     const newUser = new User({ name, email, subject, message });
     await newUser.save();
-
-    res.json({ message: "User Registered successfully", user: newUser });
+    res.json({ message: "Message sent successfully", user: newUser });
   } catch (e) {
-    res.json(e);
+    res.status(500).json({ error: e.message });
   }
 });
 
-// GET route to fetch all messages
+// ── GET /fetch ──
 app.get("/fetch", async (req, res) => {
   try {
-    const count = await User.countDocuments();
-    const users = await User.find();
-    res.json({ users, count });
+    const U = await User.find().sort({ createdAt: -1 });
+    const count = U.length;
+    res.json({ U, count });
   } catch (e) {
-    res.json(e);
+    res.status(500).json({ error: e.message });
   }
 });
 
-// Start server
+// ── Start server ──
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
 });
 
-// Export app for external usage (e.g., testing)
 module.exports = app;
