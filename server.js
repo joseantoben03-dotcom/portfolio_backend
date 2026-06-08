@@ -22,6 +22,11 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
+// Root route to check server status
+app.get("/", (req, res) => {
+  res.json({ status: "Backend is running properly 🚀" });
+});
+
 // POST route to save message
 app.post("/message", async (req, res) => {
   try {
@@ -56,3 +61,6 @@ app.get("/fetch", async (req, res) => {
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
 });
+
+// Export app for external usage (e.g., testing)
+module.exports = app;
