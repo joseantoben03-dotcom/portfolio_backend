@@ -5,14 +5,7 @@ const cors = require("cors");
 
 require("dotenv").config();
 
-// ── CORS config ──
-const corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 // ── MongoDB ──
