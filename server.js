@@ -5,7 +5,7 @@ const cors = require("cors");
 
 require("dotenv").config();
 
-// ── CORS ──
+// ── Manual CORS headers — runs before everything ──
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -54,11 +54,11 @@ app.post("/message", async (req, res) => {
     const newUser = new User({ name, email, subject, message });
     const saved = await newUser.save();
 
-    console.log("✅ Saved:", saved._id);
+    console.log("✅ Saved to MongoDB:", saved._id);
     res.status(201).json({ message: "Message sent successfully", user: saved });
 
   } catch (e) {
-    console.log("❌ Error:", e.message);
+    console.log("❌ Save error:", e.message);
     res.status(500).json({ error: e.message });
   }
 });
@@ -71,6 +71,7 @@ app.get("/fetch", async (req, res) => {
     console.log(`📋 Fetched ${count} records`);
     res.json({ U, count });
   } catch (e) {
+    console.log("❌ Fetch error:", e.message);
     res.status(500).json({ error: e.message });
   }
 });
